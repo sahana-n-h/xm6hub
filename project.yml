@@ -1,0 +1,80 @@
+name: XM6Hub
+options:
+  bundleIdPrefix: com.xm6hub
+  deploymentTarget:
+    macOS: "14.0"
+  createIntermediateGroups: true
+configFiles:
+  Debug: Config.xcconfig
+  Release: Config.xcconfig
+settings:
+  base:
+    SWIFT_VERSION: "5.9"
+    MACOSX_DEPLOYMENT_TARGET: "14.0"
+    CLANG_CXX_LANGUAGE_STANDARD: c++20
+    CLANG_CXX_LIBRARY: libc++
+    CODE_SIGN_STYLE: Automatic
+targets:
+  XM6Hub:
+    type: application
+    platform: macOS
+    sources:
+      - path: XM6Hub
+      - path: Shared
+      - path: bridge
+        compilerFlags: -ObjC++
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.xm6hub.app
+        INFOPLIST_FILE: XM6Hub/Info.plist
+        ENABLE_HARDENED_RUNTIME: YES
+        SWIFT_OBJC_BRIDGING_HEADER: bridge/XM6Hub-Bridging-Header.h
+        HEADER_SEARCH_PATHS:
+          - $(PROJECT_DIR)/vendor/SonyHeadphonesClient/libmdr/include
+          - $(PROJECT_DIR)/build/libmdr/_deps/fmt-src/include
+        LIBRARY_SEARCH_PATHS:
+          - $(PROJECT_DIR)/build/libmdr/libmdr/src
+          - $(PROJECT_DIR)/build/libmdr/libmdr/src/Platform/MacOS
+          - $(PROJECT_DIR)/build/libmdr/_deps/fmt-build
+        OTHER_LDFLAGS:
+          - -lmdr
+          - -lmdr_PlatformMacOS
+          - -lfmt
+          - -framework IOBluetooth
+          - -framework Foundation
+          - -lc++
+      configs:
+        Debug:
+          CODE_SIGN_ENTITLEMENTS: XM6Hub/XM6Hub.debug.entitlements
+        Release:
+          CODE_SIGN_ENTITLEMENTS: XM6Hub/XM6Hub.entitlements
+    dependencies:
+      - target: XM6HubWidget
+        embed: true
+    preBuildScripts:
+      - name: Build libmdr
+        script: |
+          /bin/bash "${PROJECT_DIR}/scripts/build-libmdr.sh"
+        basedOnDependencyAnalysis: false
+        showEnvVars: false
+
+  XM6HubWidget:
+    type: app-extension
+    platform: macOS
+    sources:
+      - path: XM6HubWidget
+      - path: Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.xm6hub.app.widget
+        INFOPLIST_FILE: XM6HubWidget/Info.plist
+        SKIP_INSTALL: YES
+        LD_RUNPATH_SEARCH_PATHS:
+          - "$(inherited)"
+          - "@executable_path/../Frameworks"
+          - "@executable_path/../../../../Frameworks"
+      configs:
+        Debug:
+          CODE_SIGN_ENTITLEMENTS: XM6HubWidget/XM6HubWidget.debug.entitlements
+        Release:
+          CODE_SIGN_ENTITLEMENTS: XM6HubWidget/XM6HubWidget.entitlements
