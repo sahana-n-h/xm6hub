@@ -1,6 +1,6 @@
 # XM6 Hub
 
-Menu bar app for the Sony WH-1000XM6. Uses [libmdr](https://github.com/mos9527/SonyHeadphonesClient) (vendored in `vendor/SonyHeadphonesClient/`).
+Uses [libmdr](https://github.com/mos9527/SonyHeadphonesClient) (vendored in `vendor/SonyHeadphonesClient/`).
 
 Not affiliated with Sony.
 
